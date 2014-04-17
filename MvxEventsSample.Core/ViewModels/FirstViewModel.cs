@@ -17,19 +17,8 @@ namespace MvxEventsSample.Core.ViewModels
             _myService = myService;
 
             // Initialize event handlers using lambda expressions
-            _events = new MyService.Events(messenger)
-            {
-                OnLogonChanged = message =>
-                {
-                    Hello = "OnLogonChanged: " + (++_counter);
-                    Mvx.Trace("OnLogonChanged");
-                },
-                OnAnotherEvent = message =>
-                {
-                    Hello = message.Text;
-                    Mvx.Trace("OnAnotherEvent");
-                }
-            };
+            _events = new MyService.Events(messenger);
+            DoSubscribe();
         }
 
         private string _hello;
@@ -58,6 +47,49 @@ namespace MvxEventsSample.Core.ViewModels
                 _doSomethingCommand = _doSomethingCommand ?? new MvxCommand(_myService.DoSomething);
                 return _doSomethingCommand;
             }
+        }
+
+        private MvxCommand _subscribeCommand;
+        public ICommand SubscribeCommand
+        {
+            get
+            {
+                _subscribeCommand = _subscribeCommand ?? new MvxCommand(DoSubscribe);
+                return _subscribeCommand;
+            }
+        }
+
+        private MvxCommand _unsubscribeCommand;
+        public ICommand UnsubscribeCommand
+        {
+            get
+            {
+                _unsubscribeCommand = _unsubscribeCommand ?? new MvxCommand(DoUnsubscribe);
+                return _unsubscribeCommand;
+            }
+        }
+
+        private void DoSubscribe()
+        {
+            Hello = "Subscribed to events";
+            _events.OnLogonChanged = message =>
+            {
+                Hello = "OnLogonChanged: " + (++_counter);
+                Mvx.Trace("OnLogonChanged");
+            };
+
+            _events.OnAnotherEvent = message =>
+            {
+                Hello = message.Text;
+                Mvx.Trace("OnAnotherEvent");
+            };
+        }
+
+        private void DoUnsubscribe()
+        {
+            Hello = "Unsubscribed from events";
+            _events.OnLogonChanged = null;
+            _events.OnAnotherEvent = null;
         }
     }
 }

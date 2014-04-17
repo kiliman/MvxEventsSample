@@ -7,12 +7,6 @@ using Cirrious.MvvmCross.Plugins.Messenger;
 
 namespace MvxEventsSample.Core.Services
 {
-    public interface IMyService
-    {
-        void Logon();
-        void DoSomething();
-    }
-
     public class MyService : IMyService
     {
         private readonly IMvxMessenger _messenger;
@@ -32,25 +26,22 @@ namespace MvxEventsSample.Core.Services
             _messenger.Publish(new AnotherEventMessage(this, string.Format("Do Something at {0}", DateTime.Now)));
         }
 
-        public class Events
+        public class Events : EventsBase
         {
-            private readonly IMvxMessenger _messenger;
-
-            public Events(IMvxMessenger messenger)
+            public Events(IMvxMessenger messenger) : base(messenger)
             {
-                _messenger = messenger;
             }
 
             private MvxSubscriptionToken _logonChangedToken;
             public Action<LogonChangedMessage> OnLogonChanged
             {
-                set { _logonChangedToken = _messenger.Subscribe(value); } 
+                set { SetHandler(value, ref _logonChangedToken); } 
             }
 
             private MvxSubscriptionToken _anotherEventToken;
             public Action<AnotherEventMessage> OnAnotherEvent
             {
-                set { _anotherEventToken = _messenger.Subscribe(value); }
+                set { SetHandler(value, ref _anotherEventToken); }
             }
         }
 
