@@ -26,7 +26,11 @@ namespace MvxEventsSample.Core.Services
                 token = null;
                 return;
             }
-            token = _messenger.Subscribe(action);
+            //Check that action is not null (Can occur if unsubscribe invoked multiple times without matching subscription)
+            if (action != null)
+            {
+              token = _messenger.Subscribe(action);
+            }
         }
     }
 }
